@@ -1,0 +1,6 @@
+replicaCount: 1
+hpa:
+  minReplicas: 1
+  maxReplicas: 3
+secrets:
+  awsSecretName: bio-track/staging/usrv-bio-track-health

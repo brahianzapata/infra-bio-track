@@ -6,6 +6,11 @@ variable "aws_account_id" {
   type = string
 }
 
+variable "oidc_provider_arn" {
+  type        = string
+  description = "ARN of the GitHub OIDC provider (account-level singleton, created in shared env)"
+}
+
 variable "github_org" {
   type    = string
   default = "brahianzapata"

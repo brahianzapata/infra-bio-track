@@ -29,8 +29,3 @@ variable "node_max" {
   type    = number
   default = 5
 }
-
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
-}
