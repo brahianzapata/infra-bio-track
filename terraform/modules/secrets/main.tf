@@ -72,6 +72,8 @@ resource "kubernetes_manifest" "cluster_secret_store" {
 }
 
 # Annotate ESO ServiceAccount with IRSA role ARN (created by ESO helm, patched here)
+# No explicit depends_on needed: ordering is enforced by the oidc_provider_arn input
+# that flows from the eks module, which also owns the ESO helm release.
 resource "kubernetes_annotations" "eso_sa_irsa" {
   api_version = "v1"
   kind        = "ServiceAccount"
@@ -82,5 +84,4 @@ resource "kubernetes_annotations" "eso_sa_irsa" {
   annotations = {
     "eks.amazonaws.com/role-arn" = aws_iam_role.eso.arn
   }
-  depends_on = [kubernetes_namespace.bio_track]
 }

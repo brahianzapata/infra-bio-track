@@ -11,6 +11,7 @@ TF_BACKEND_ARGS = \
   -backend-config="region=$(AWS_REGION)"
 
 .PHONY: bootstrap \
+        init-shared  plan-shared  apply-shared  \
         init-staging plan-staging apply-staging \
         init-prod    plan-prod    apply-prod    \
         kubeconfig-staging kubeconfig-prod      \
@@ -19,6 +20,18 @@ TF_BACKEND_ARGS = \
 
 bootstrap:
 	AWS_ACCOUNT_ID=$(AWS_ACCOUNT_ID) AWS_REGION=$(AWS_REGION) ./bootstrap.sh
+
+init-shared:
+	cd terraform/envs/shared && terraform init -input=false $(TF_BACKEND_ARGS)
+
+plan-shared: init-shared
+	cd terraform/envs/shared && \
+	  terraform plan -input=false \
+	    -var="aws_account_id=$(AWS_ACCOUNT_ID)" \
+	    -out=shared.tfplan
+
+apply-shared: plan-shared
+	cd terraform/envs/shared && terraform apply -auto-approve -input=false shared.tfplan
 
 init-staging:
 	cd terraform/envs/staging && terraform init -input=false $(TF_BACKEND_ARGS)

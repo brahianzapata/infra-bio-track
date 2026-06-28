@@ -64,10 +64,6 @@ module "vpc" {
   cluster_name = var.cluster_name
 }
 
-module "ecr" {
-  source = "../../modules/ecr"
-}
-
 module "eks" {
   source       = "../../modules/eks"
   cluster_name = var.cluster_name
@@ -76,7 +72,6 @@ module "eks" {
   node_type    = var.node_type
   node_min     = var.node_min
   node_max     = var.node_max
-  aws_region   = var.region
 }
 
 module "secrets" {
@@ -88,12 +83,3 @@ module "secrets" {
   aws_account_id    = data.aws_caller_identity.current.account_id
 }
 
-module "iam_github" {
-  source         = "../../modules/iam-github"
-  cluster_name   = var.cluster_name
-  aws_account_id = data.aws_caller_identity.current.account_id
-}
-
-output "ecr_role_arn" { value = module.iam_github.ecr_role_arn }
-output "eks_role_arn" { value = module.iam_github.eks_role_arn }
-output "ecr_urls"     { value = module.ecr.repository_urls }
