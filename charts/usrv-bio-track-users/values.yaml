@@ -1,0 +1,28 @@
+image:
+  repository: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/usrv-bio-track-users
+  tag: latest
+
+replicaCount: 2
+
+service:
+  port: 8080
+
+hpa:
+  minReplicas: 2
+  maxReplicas: 8
+  cpuThreshold: 70
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "500m"
+
+secrets:
+  awsSecretName: bio-track/prod/usrv-bio-track-users
+
+ingress:
+  host: api.eks.biotrackai.com
+  path: /api/users
