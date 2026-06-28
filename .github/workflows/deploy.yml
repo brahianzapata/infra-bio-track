@@ -1,0 +1,49 @@
+name: Helm Deploy
+
+on:
+  repository_dispatch:
+    types: [deploy-service]
+
+jobs:
+  helm-upgrade:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_EKS_ARN }}
+          aws-region: us-east-1
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name bio-track-${{ github.event.client_payload.env }} \
+            --region us-east-1
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - name: Update chart dependencies
+        run: |
+          helm dependency update \
+            charts/${{ github.event.client_payload.service }}
+
+      - name: Helm upgrade
+        run: |
+          helm upgrade --install \
+            ${{ github.event.client_payload.service }} \
+            ./charts/${{ github.event.client_payload.service }} \
+            --namespace bio-track \
+            --create-namespace \
+            --set image.tag=${{ github.event.client_payload.tag }} \
+            -f ./charts/${{ github.event.client_payload.service }}/values.${{ github.event.client_payload.env }}.yaml \
+            --wait \
+            --timeout 5m \
+            --atomic
